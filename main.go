@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"html/template"
+	"log"
 	"net/http"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type ToDo struct {
@@ -23,24 +25,9 @@ func (l *ToDos) Add(title string) {
 	*l = append(*l, todo)
 }
 
-// Обработка пути /
-func index(w http.ResponseWriter, r *http.Request) {
-
-	tmpl := template.Must(template.ParseFiles("templates/index.html"))
-	// list == слайс ToDo
-	err := tmpl.Execute(w, list)
-
-	if err != nil {
-		_, err := fmt.Fprintf(w, err.Error())
-		if err != nil {
-			return
-		}
-	}
-}
-
 // Добавление нового элемента в бд
 func insert(db *sql.DB, title string) error {
-	_, err := db.Exec("INSERT INTO `todo` (`id`, `title`, `completed`) VALUES (NULL, title, '0')")
+	_, err := db.Exec("INSERT INTO `todo` (`id`, `title`, `completed`) VALUES (NULL, ?, '0')", title)
 	if err != nil {
 		return err
 	}
@@ -68,29 +55,73 @@ func getAll(db *sql.DB) (slice []ToDo, e error) {
 	return slice, nil
 }
 
-func main() {
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
+// Обработка пути /
+func index(w http.ResponseWriter, r *http.Request) {
+	// Получение всех элементов из базы данных
+	list, err := getAll(db)
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(list)
+
+	tmpl := template.Must(template.ParseFiles("templates/index.html"))
+	// list == слайс ToDo
+	err = tmpl.Execute(w, list)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// Обработка POST-запроса из формы
+func save(w http.ResponseWriter, r *http.Request) {
+	// Получение данных из тела запроса
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	title := r.Form.Get("title")
+	// Сохранение данных в базу данных
+	err = insert(db, title)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Перенаправление на главную страницу
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+var db *sql.DB
+
+func main() {
+	var err error
+	db, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}(db)
 
-	// Хендлер для пути /
-	http.HandleFunc("/", index)
-
-	// Запуск сервера
-	err = http.ListenAndServe(":8080", nil)
+	err = db.Ping()
 	if err != nil {
-		panic("Error with server starting")
+		log.Fatal(err)
 	}
 
+	http.HandleFunc("/", index)
+	http.HandleFunc("/save", save)
+
+	log.Println("Server started on :8080")
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
-
-//TODO: прикрепить к хендлеру работу с бд
-
-//TODO: ууу сука, сделаю бота для работы через телеграм
