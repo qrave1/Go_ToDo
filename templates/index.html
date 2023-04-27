@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
+    <!-- Подключаем стили Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Стили для центрирования заголовка */
+        h1 {
+            text-align: center;
+        }
+        /* Стили для расстояния между задачами */
+        .list-group-item {
+            margin-bottom: 10px;
+        }
+        /* Красивый чекбокс */
+        .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+            background-color: #007bff;
+        }
+        .custom-checkbox .custom-control-input:focus~.custom-control-label::before {
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        body.dark-mode .custom-control-input:checked~.custom-control-label::before {
+            background-color: #007bff;
+        }
+        /* Стили для тёмной темы */
+        body.dark-mode {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        body.dark-mode a {
+            color: #c8cbcf;
+        }
+        body.dark-mode .list-group-item {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+
+        /* Стили для кнопки переключения темы */
+        #theme-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000; /* Добавляем свойство z-index, чтобы кнопка была поверх других элементов */
+        }
+        #theme-toggle i {
+            font-size: 24px;
+        }
+        body:not(.dark-mode) #theme-toggle i {
+            color: #007bff;
+        }
+        body.dark-mode #theme-toggle i {
+            color: #f8f9fa;
+        }
+
+        /* Стили для выполнённых задач */
+        .completed .custom-control-label {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>To-Do List</h1>
+    <ul class="list-group">
+        {{range .}}
+        <li class="list-group-item">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="{{.ID}}" {{if .Completed}}checked{{end}}>
+                <label class="custom-control-label" for="{{.ID}}">{{.Title}}</label>
+            </div>
+        </li>
+        {{end}}
+    </ul>
+    <button id="theme-toggle" class="btn btn-light"><i class="fas fa-moon"></i></button>
+</div>
+<!-- Подключаем скрипты Bootstrap и jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    // Обработчик клика на кнопку
+    $('#theme-toggle').on('click', function() {
+        // Добавляем или удаляем класс для изменения темы
+        $('body').toggleClass('dark-mode');
+    });
+</script>
+<script>
+    // Добавляем обработчик события change для checkbox'ов
+    $('.custom-control-input').change(function() {
+        if ($(this).is(':checked')) {
+            $(this).closest('.list-group-item').addClass('completed');
+        } else {
+            $(this).closest('.list-group-item').removeClass('completed');
+        }
+    });
+</script>
+</body>
+</html>
