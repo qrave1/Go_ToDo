@@ -1,0 +1,15 @@
+/* Стили для центрирования заголовка */
+h1 {
+    text-align: center;
+}
+/* Стили для расстояния между задачами */
+.list-group-item {
+    margin-bottom: 5px;
+}
+/* Красивый чекбокс */
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+    background-color: #007bff;
+}
+.custom-checkbox .custom-control-input:focus~.custom-control-label::before {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

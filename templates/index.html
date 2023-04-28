@@ -5,27 +5,21 @@
     <title>To-Do List</title>
     <!-- Подключаем стили Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        /* Стили для центрирования заголовка */
-        h1 {
-            text-align: center;
-        }
-        /* Стили для расстояния между задачами */
-        .list-group-item {
-            margin-bottom: 10px;
-        }
-        /* Красивый чекбокс */
-        .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
-            background-color: #007bff;
-        }
-        .custom-checkbox .custom-control-input:focus~.custom-control-label::before {
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <div class="container">
     <h1>To-Do List</h1>
+
+    <form method="POST" action="/save" class="input-group mb-3">
+        <input type="text" name="data" class="form-control" placeholder="Введите название задачи" aria-label="Введите название задачи" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Добавить</button>
+        </div>
+
+    </form>
+
+
     <ul class="list-group">
         {{range $index, $task := .}}
         <li class="list-group-item">

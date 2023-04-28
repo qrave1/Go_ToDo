@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -64,10 +63,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(list)
-
 	tmpl := template.Must(template.ParseFiles("templates/index.html"))
-	// list == слайс задач
 	err = tmpl.Execute(w, list)
 
 	if err != nil {
@@ -78,23 +74,25 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 // Обработка POST-запроса из формы
 func save(w http.ResponseWriter, r *http.Request) {
-	// Получение данных из тела запроса
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	title := r.Form.Get("title")
-	// Сохранение данных в базу данных
-	err = insert(db, title)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	if r.Method == "POST" {
+		// Получение данных из тела запроса
+		data := r.FormValue("data")
 
-	// Перенаправление на главную страницу
-	http.Redirect(w, r, "/", http.StatusFound)
+		// Сохранение данных в базу данных
+		err := insert(db, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Перенаправление на главную страницу
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
 }
+
+//func delete(w http.ResponseWriter, r *http.Request) {
+//
+//}
 
 var db *sql.DB
 
