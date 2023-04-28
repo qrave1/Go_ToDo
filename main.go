@@ -67,7 +67,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(list)
 
 	tmpl := template.Must(template.ParseFiles("templates/index.html"))
-	// list == слайс ToDo
+	// list == слайс задач
 	err = tmpl.Execute(w, list)
 
 	if err != nil {
@@ -125,3 +125,5 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// TODO: добавить readme
